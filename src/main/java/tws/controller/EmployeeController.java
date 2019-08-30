@@ -5,8 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import tws.dto.EmployeeDTO;
 import tws.entity.Employee;
 import tws.repository.EmployeeMapper;
+import tws.service.EmployeeService;
 
 import java.net.URI;
 import java.util.List;
@@ -20,16 +22,27 @@ public class EmployeeController {
     @Autowired
     private EmployeeMapper employeeMapper;
 
-    @GetMapping
-    public ResponseEntity<List<Employee>> getAll() {
+    @Autowired
+    private EmployeeService employeeService;
 
-        return ResponseEntity.ok(employeeMapper.selectAll());
+    @GetMapping
+    public ResponseEntity<List<Employee>> getAll(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer pagesize) {
+
+        return ResponseEntity.ok(employeeService.getEmployeesBypage(page,pagesize));
+    }
+    @GetMapping("/byName")
+    public ResponseEntity<List<Employee>> selectByName(
+            @RequestParam(required = false) String name) {
+
+        return ResponseEntity.ok(employeeService.getEmployeesByName(name));
     }
     @GetMapping("/{id}")
-    public ResponseEntity<Employee> getOne(@PathVariable String id) {
+    public ResponseEntity<EmployeeDTO> getOne(@PathVariable String id) {
+        EmployeeDTO employeeWithEesc = employeeService.getEmployeeWithEesc(id);
 
-        Employee employee = employeeMapper.selectOne(id);
-        return ResponseEntity.ok(employee);
+        return ResponseEntity.ok(employeeWithEesc);
     }
     @PutMapping("/{id}")
     public ResponseEntity<Employee> updateOne(@RequestBody Employee employee,@PathVariable String id) {
@@ -53,5 +66,6 @@ public class EmployeeController {
         employeeMapper.insertOne(employee);
         return ResponseEntity.created(URI.create("/employees"+employee.getId())).body(employee);
     }
+
 
 }

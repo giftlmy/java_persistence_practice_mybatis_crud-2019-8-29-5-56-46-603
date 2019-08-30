@@ -2,10 +2,20 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="tws.repository.EmployeeMapper">
     <select id="selectAll" resultType="tws.entity.Employee">
-        select * from `employee`;
+        select * from employee
+        order by id
+        offset #{offset} rows
+        fetch next #{limit} rows only ;
     </select>
     <select id="selectOne" parameterType="java.lang.String" resultType="tws.entity.Employee">
         select * from `employee` where id = #{id};
+    </select>
+    <select id="selectByName" resultType="tws.entity.Employee">
+        select * from `employee`
+        <if test="name != null">
+            <bind name="pattern" value="'%' + name + '%'"/>
+            where name like #{pattern}
+        </if>
     </select>
     <insert id="insertOne" >
         insert into employee(id,name,age)
